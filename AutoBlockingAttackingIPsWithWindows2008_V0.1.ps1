@@ -14,7 +14,7 @@
 
  #Port 3389
  $a = @();
- netstat -no | Select-String ":3389" | ? { $m = $regex1.Match($_); $ip = $m.Groups[1].Value; if ($m.Success -and $ip -ne "202.111.6.12") {$a = $a + $ip;} }
+ netstat -no | Select-String ":3389" | ? { $m = $regex1.Match($_); $ip = $m.Groups[1].Value; if ($m.Success -and $ip -ne "10.1.1.10") {$a = $a + $ip;} }
 
  if ($a.count -gt 0) {
    $ips = get-eventlog Security -Newest 1000 | Where-Object {$_.EventID -eq 4625 -and { $_.Message -match "Logon Type:\s+10"} -or{ $_.Message -match "Logon Type:\s+2"} } | foreach {$m = $regex2.Match($_.Message); $ip = $m.Groups[1].Value; $ip; } | Sort-Object | Tee-Object -Variable list | Get-Unique 
@@ -30,13 +30,13 @@
  }
   
  #Firewall change 
- #<# $current = (netsh advfirewall firewall show rule name="MY BLACKLIST" | where {$_ -match "RemoteIP"}).replace("RemoteIP:", "").replace(" ","").replace("/255.255.255.255",""); #inside $current there is no \r or \n need remove. foreach ($ip in $blacklist) { if (-not ($current -match $ip) -and -not ($ip -like "202.111.6.12")) {"Adding this IP into firewall blocklist: " + $ip; $c= 'netsh advfirewall firewall set rule name="MY BLACKLIST" new RemoteIP="{0},{1}"' -f $ip, $current; Invoke-Expression $c; } } #> 
+ #<# $current = (netsh advfirewall firewall show rule name="MY BLACKLIST" | where {$_ -match "RemoteIP"}).replace("RemoteIP:", "").replace(" ","").replace("/255.255.255.255",""); #inside $current there is no \r or \n need remove. foreach ($ip in $blacklist) { if (-not ($current -match $ip) -and -not ($ip -like "10.1.1.10")) {"Adding this IP into firewall blocklist: " + $ip; $c= 'netsh advfirewall firewall set rule name="MY BLACKLIST" new RemoteIP="{0},{1}"' -f $ip, $current; Invoke-Expression $c; } } #> 
    
  foreach ($ip in $blacklist) {
    $fw=New-object ¨CcomObject HNetCfg.FwPolicy2;
    $myrule = $fw.Rules | where {$_.Name -eq "MY BLACKLIST"} | select -First 1; # Potential bug here?
 
-   if (-not ($myrule.RemoteAddresses -match $ip) -and -not ($ip -like "202.111.6.12")) {
+   if (-not ($myrule.RemoteAddresses -match $ip) -and -not ($ip -like "10.1.1.10")) {
 		"Adding this IP into firewall blocklist: " + $ip;
 		$myrule.RemoteAddresses+=(","+$ip);
      }
