@@ -1,6 +1,6 @@
 #modification your application port number
-#Run Secript£º powershell.exe ¨Cfile 
-#Cancel Run£ºCTRL+C
+#Run Secript: powershell.exe -file 
+#Cancel Run: CTRL+C
 #This code has been used pactera eds data certificate to sign
 #If change security policy run all local code: set-executionpolicy remotesigned
 #Change 10.1.1.20 to your trust remote access IP
